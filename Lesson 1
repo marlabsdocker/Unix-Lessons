@@ -1,0 +1,118 @@
+
+FILES, FILE TYPES, FILE OWNERSHIP,
+AND FILE PERMISSIONS
+Managing files under Linux is different from managing files under Windows NT/200x/
+XP/Vista, and radically different from managing files under Windows 95/98. In this section,
+we discuss basic file management tools and concepts under Linux. We’ll start with
+specifics on some useful general-purpose commands, and then we’ll step back and look
+at some background information.
+Under Linux (and UNIX in general), almost everything is abstracted to a file. Originally,
+this was done to simplify the programmer’s job. Instead of having to communicate
+directly with device drivers, special files (which look like ordinary files to the application)
+are used as a bridge. Several types of files accommodate all these file uses.
+Normal Files
+Normal files are just that—normal. They contain data or executables, and the operating
+system makes no assumptions about their contents.
+Directories
+Directory files are a special instance of normal files. Directory files list the locations of
+other files, some of which may be other directories. (This is similar to folders in Windows.)
+In general, the contents of directory files won’t be of importance to your daily operations,
+unless you need to open and read the file yourself rather than using existing applications
+to navigate directories. (This would be similar to trying to read the DOS file allocation
+table directly rather than using command.com to navigate directories or using the findfirst/
+findnext system calls.)
+Chapter 5: The Command Line 113
+Hard Links
+Each file in the Linux file system gets its own i-node. An i-node keeps track of a file’s
+attributes and its location on the disk. If you need to be able to refer to a single file using
+two separate filenames, you can create a hard link. The hard link will have the same
+i-node as the original file and will, therefore, look and behave just like the original. With
+every hard link that is created, a reference count is incremented. When a hard link is
+removed, the reference count is decremented. Until the reference count reaches zero, the
+file will remain on disk.
+NOTE A hard link cannot exist between two files on separate partitions. This is because the hard
+link refers to the original file by i-node, and a file’s i-node may differ among file systems.
+Symbolic Links
+Unlike hard links, which point to a file by its i-node, a symbolic link points to another
+file by its name. This allows symbolic links (often abbreviated symlinks) to point to files
+located on other partitions, even other network drives.
+Block Devices
+Since all device drivers are accessed through the file system, files of type block device
+are used to interface with devices such as disks. A block device file has three identifying
+traits:
+▼ It has a major number.
+■ It has a minor number.
+▲ When viewed using the ls -l command, it shows b as the first character of the
+permissions field.
+For example,
+[yyang@fedora-serverA ~]$ ls -l /dev/sda
+brw-r----- 1 root disk 8, 0 2090-09-30 08:18 /dev/sda
+Note the b at the beginning of the file’s permissions; the 8 is the major number, and
+the 0 is the minor number.
+A block device file’s major number identifies the represented device driver. When this
+file is accessed, the minor number is passed to the device driver as a parameter, telling
+it which device it is accessing. For example, if there are two serial ports, they will share
+the same device driver and thus the same major number, but each serial port will have a
+unique minor number.
+114 Linux Administration: A Beginner’s Guide
+Character Devices
+Similar to block devices, character devices are special files that allow you to access devices
+through the file system. The obvious difference between block and character devices is
+that block devices communicate with the actual devices in large blocks, whereas character
+devices work one character at a time. (A hard disk is a block device; a modem is a
+character device.) Character device permissions start with a c, and the file has a major
+number and a minor number. For example,
+[yyang@fedora-serverA ~]$ ls -l /dev/ttyS0
+crw-rw---- 1 root uucp 4, 64 2007-09-30 08:18 /dev/ttyS0
+Named Pipes
+Named pipes are a special type of file that allows for interprocess communication.
+Using the mknod command, you can create a named pipe file that one process can
+open for reading and another process can open for writing, thus allowing the two to
+communicate with one another. This works especially well when a program refuses
+to take input from a command-line pipe, but another program needs to feed the
+other one data and you don’t have the disk space for a temporary file.
+For a named pipe file, the first character of its file permissions is a p. For example, if a
+named pipe called mypipe exists in your present working directory (PWD), a long listing
+of the named pipe file would show this:
+[yyang@fedora-serverA ~]$ ls -l mypipe
+prw-r--r-- 1 root root 0 Mar 16 10:47 mypipe
+Listing Files: ls
+Out of necessity, we have been using the ls command in previous sections and chapters
+of this book. We will look at the ls command and its options in more details here.
+The ls command is used to list all the files in a directory. Of more than 50 available
+options, the ones listed in Table 5-2 are the most commonly used. The options can be
+used in any combination.
+To list all files in a directory with a long listing, type this command:
+[yyang@fedora-serverA ~]$ ls -la
+To list a directory’s nonhidden files that start with the letter A, type this:
+[yyang@fedora-serverA ~]$ ls A*
+Chapter 5: The Command Line 115
+TIP Linux/UNIX is case-sensitive. For example, a file named thefile.txt is very different from a file
+named Thefile.txt.
+If no such file exists in your working directory, ls prints out a message telling
+you so.
+Change Ownership: chown
+The chown command allows you to change the ownership of a file to someone else. Only
+the root user can do this. (Normal users may not give away file ownership or steal ownership
+from another user.) The syntax of the command is as follows:
+[root@fedora-serverA ~]# chown [-R] username filename
+where username is the login of the user to whom you want to assign ownership, and
+filename is the name of the file in question. The filename may be a directory as well.
+The -R option applies when the specified filename is a directory name. This option
+tells the command to recursively descend through the directory tree and apply the new
+ownership, not only to the directory itself, but also to all of the files and directories
+within it.
+Table 5-2. Common ls Options
+Option for ls Description
+-l Long listing. In addition to the
+filename, shows the file size, date/time,
+permissions, ownership, and group
+information.
+-a All files. Shows all files in the directory,
+including hidden files. Names of hidden
+files begin with a period.
+-t Lists in order of last modified time.
+-r Reverses the listing.
+-1 Single-column listing.
+-R Recursively lists all files and
+subdirectories

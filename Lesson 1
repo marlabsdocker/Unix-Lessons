@@ -1,6 +1,6 @@
 
-FILES, FILE TYPES, FILE OWNERSHIP,
-AND FILE PERMISSIONS
+<B>FILES, FILE TYPES, FILE OWNERSHIP,
+AND FILE PERMISSIONS.</B>
 Managing files under Linux is different from managing files under Windows NT/200x/
 XP/Vista, and radically different from managing files under Windows 95/98. In this section,
 we discuss basic file management tools and concepts under Linux. We’ll start with
